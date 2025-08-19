@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+    <h2 class="text-center fw-bold py-3 mb-4" id="table_headings">
+    HISTORY
+    </h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <th class="col">SYMBOL</th>
+            <th class="col"">ACTION</th>
+            <th class="col">QUANTITY</th>
+            <th class="col">PRICE</th>
+            <th class="col">DATE AND TIME</th>
+        </thead>
+        <tbody>
+            {% for history in context %}
+            <tr>
+                <td>{{ history["company_symbol"] }}</td>
+                <td>{{ history["action"] }}</td>
+                <td>{{ history["quantity"] }}</td>
+                <td>{{ history["price"] }}</td>
+                <td>{{ history["datetime"] | convert_dt }}</td> <!-- Used python function to convert date time in correct format -->
+            </tr>
+            {% endfor %}
+         </tbody>
+    </table>
+    <br /> <br />
+
+{% endblock %}

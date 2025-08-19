@@ -1,0 +1,67 @@
+/* Size for brand */
+nav .navbar-brand
+{
+    font-size: xx-large;
+}
+
+/* Colors for brand */
+nav .navbar-brand .blue
+{
+    color: #537fbe;
+}
+nav .navbar-brand .red
+{
+    color: #ea433b;
+}
+nav .navbar-brand .yellow
+{
+    color: #f5b82e;
+}
+nav .navbar-brand .green
+{
+    color: #2e944b;
+}
+
+.card {
+    position: absolute;
+    padding-top: 0;
+    top: 1;
+    right: 0;
+    width: 10%;
+}
+
+.card-body {
+    height: 50%;
+}
+
+.main-box {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        background-color: #f8f9fa;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.main-header {
+        font-family: 'Georgia', serif;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #343a40;
+        border-bottom: 2px solid #6c757d;
+        padding-bottom: 10px;
+}
+
+.table-bordered td,
+    .table-bordered th {
+        border: 2px solid black !important;
+    }
+
+#table_headings {
+    background-color: white;
+    color: black;
+    border: 2px solid black;
+    border-radius: 5px;
+}
