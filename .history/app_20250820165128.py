@@ -72,7 +72,7 @@ def buy():
         dt = int(datetime.now().timestamp())
 
         # add into users shares
-        shares_owned = db.execute("SELECT * FROM shares_owned WHERE user_id = ? AND symbol = ?", user_info["id"], symbol) # get current holdings
+        shares_owned = db.execute("SELECT * FROM shares_owned WHERE user_id = ?", user_info["id"]) # get current holdings
 
         if shares_owned: # if already have that type of shares
             db.execute("UPDATE shares_owned SET quantity = ?, total_holdings = ? WHERE user_id = ? AND symbol = ?", shares_owned[0]["quantity"] + quantity,
@@ -161,8 +161,7 @@ def quote():
         if not symbol or not info: # if input is wrong
             return apology("Enter Valid Symbol")
         return render_template("quote.html", info=info) # if request is post and input is correct
-    user_company_symbol = request.args.get("symbol", default="")
-    return render_template("quote.html", symbol=user_company_symbol) # get request
+    return render_template("quote.html") # get request
 
 @app.route("/register", methods=["GET", "POST"])
 def register():

@@ -30,7 +30,7 @@
         <div class="main-header">Search Stock</div>
             <form action="/quote" method="post">
                 <div class="mb-3">
-                    <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="symbol" placeholder="Enter Company's Symbol" type="text" value="{{ symbol }}">
+                    <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="symbol" placeholder="Enter Company's Symbol" type="text">
                 </div>
                 <button class="btn btn-primary" type="submit">SEARCH</button>
                 <button class="btn btn-primary ms-1" id="show-search-form" type="button">Search Symbol</button>
@@ -42,7 +42,6 @@
         <div id="search-form-modal" class="modal-container">
             <form action="/get_symbol" id="search-symbol-form" method="post">
                 <div class="input-group gap-3">
-                    <input type="hidden" name="source" value="quote_page">
                     <input type="text" class="form-control" placeholder="Enter Company Name" id="company-name-input" name="company_name">
                     <button class="btn btn-primary" id="company_name_button" type="submit">Search</button>
                 </div>

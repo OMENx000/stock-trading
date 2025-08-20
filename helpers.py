@@ -71,10 +71,11 @@ def usd(value):
 
 
 def convert_dt(dt):
-    # convert date and time into right format
+    ''' convert date and time into right format '''
     return datetime.fromtimestamp(dt)
 
 def check_quantity(quantity):
+    ''' Check numerical inputs '''
     if quantity and quantity.isdigit():
         quantity = int(quantity)
         if quantity < 1:
@@ -82,3 +83,33 @@ def check_quantity(quantity):
     else:
             return False
     return quantity
+
+def symbol_api(company_name):
+    ''' User can search company symbol through name'''
+    import google.generativeai as genai
+
+    # Initialize the generative model
+    model = genai.GenerativeModel('gemini-2.5-flash')
+
+    # Correct prompt structure
+    prompt = [
+        {
+            "role": "user",
+            "parts": [{
+                "text": (
+                    "This is an api for finance app. You are placed on a stock searching button. "
+                    "Each person will just type the company name and you should only answer in its respect. "
+                    "Each user is only allowed to enter only a company name that should be listed on stock exchange, "
+                    "if user types anything else, reply sorry."
+                    "Else if user typed correct company name just reply with one word company symbol(Upper case) of the stock exchange."
+                    "Remember you are only allowed to output two things either stock name or sorry\n\n"
+                    f"{company_name}"
+                )
+            }]
+        }
+    ]
+
+    # Generate content
+    response = model.generate_content(prompt)
+
+    return response.text

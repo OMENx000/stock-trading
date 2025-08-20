@@ -72,7 +72,7 @@ def buy():
         dt = int(datetime.now().timestamp())
 
         # add into users shares
-        shares_owned = db.execute("SELECT * FROM shares_owned WHERE user_id = ? AND symbol = ?", user_info["id"], symbol) # get current holdings
+        shares_owned = db.execute("SELECT * FROM shares_owned WHERE user_id = ?", user_info["id"]) # get current holdings
 
         if shares_owned: # if already have that type of shares
             db.execute("UPDATE shares_owned SET quantity = ?, total_holdings = ? WHERE user_id = ? AND symbol = ?", shares_owned[0]["quantity"] + quantity,

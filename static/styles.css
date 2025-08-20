@@ -65,3 +65,24 @@ nav .navbar-brand .green
     border: 2px solid black;
     border-radius: 5px;
 }
+
+#search-form-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(255,255,255,0.5);
+        backdrop-filter: blur(6px);
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-container {
+        background: #fff;
+        padding: 2rem 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 32px rgba(0,0,0,0.15);
+        z-index: 1100;
+        min-width: 350px;
+    }

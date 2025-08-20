@@ -72,7 +72,7 @@ def buy():
         dt = int(datetime.now().timestamp())
 
         # add into users shares
-        shares_owned = db.execute("SELECT * FROM shares_owned WHERE user_id = ? AND symbol = ?", user_info["id"], symbol) # get current holdings
+        shares_owned = db.execute("SELECT * FROM shares_owned WHERE user_id = ?", user_info["id"]) # get current holdings
 
         if shares_owned: # if already have that type of shares
             db.execute("UPDATE shares_owned SET quantity = ?, total_holdings = ? WHERE user_id = ? AND symbol = ?", shares_owned[0]["quantity"] + quantity,
@@ -161,8 +161,7 @@ def quote():
         if not symbol or not info: # if input is wrong
             return apology("Enter Valid Symbol")
         return render_template("quote.html", info=info) # if request is post and input is correct
-    user_company_symbol = request.args.get("symbol", default="")
-    return render_template("quote.html", symbol=user_company_symbol) # get request
+    return render_template("quote.html") # get request
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -285,14 +284,13 @@ def add_cash():
 def get_symbol():
     ''' Finds symbol from with ai model and fill in the field (works for both purchase and quote page)'''
     company_name = request.form.get("company_name")
-    source = request.form.get("source") # which page has sent the request
-    
+    source = request.form.get("source") # which page has sent
     if not company_name:
-        return redirect("/buy") if source == "purchase_page" else redirect("/quote")
+        return redirect("/buy")
     
     symbol = symbol_api(company_name) # get symbol
     
     if "sorry" in symbol:  # if anything else entered other than company name
         return apology("Sorry! Enter Valid Company Name")
     
-    return redirect(url_for("buy", symbol=symbol)) if source == "purchase_page" else redirect(url_for("quote", symbol=symbol))
+    return redirect(url_for("buy", symbol=symbol))

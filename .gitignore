@@ -1,0 +1,14 @@
+# Ignore database file
+finance.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Flask session and runtime files
+flask_session/
+instance/
+
+# Environment / secrets
+.env
