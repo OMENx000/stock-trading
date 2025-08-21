@@ -20,7 +20,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY")
 Session(app)
-csrf = CSRFProtect(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")

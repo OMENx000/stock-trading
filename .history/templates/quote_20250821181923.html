@@ -42,7 +42,6 @@
     <div id="search-form-overlay" style="display: none;">
         <div id="search-form-modal" class="modal-container">
             <form action="/get_symbol" id="search-symbol-form" method="post">
-                {{ csrf_token() }}
                 <div class="input-group gap-3">
                     <input type="hidden" name="source" value="quote_page">
                     <input type="text" class="form-control" placeholder="Enter Company Name" id="company-name-input" name="company_name">
