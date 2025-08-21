@@ -40,7 +40,7 @@ This was developed as a learning project to explore web development, databases, 
 1. Clone the repository  
    ```bash
    git clone https://github.com/OMENx000/stock-trading.git
-   cd stock-trading-app
+   cd stock-trading
 
 2. Create virtual environment
     python -m venv venv
