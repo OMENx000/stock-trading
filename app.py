@@ -1,15 +1,25 @@
-from cs50 import SQL
-from flask import Flask, redirect, render_template, request, session, jsonify, url_for, abort
-from flask_session import Session
-from werkzeug.security import check_password_hash, generate_password_hash
-from os import getenv
-from datetime import datetime
 import secrets
-from helpers import apology, login_required, lookup, usd, convert_dt, check_quantity, symbol_api
+from datetime import datetime
+from os import getenv
+
 import pytz
+from authlib.integrations.flask_client import OAuth
+from cs50 import SQL
+from dotenv import load_dotenv
+from flask import (Flask, abort, jsonify, redirect, render_template, request,
+                   session, url_for)
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from flask_session import Session
+from helpers import (apology, check_quantity, convert_dt, login_required,
+                     lookup, symbol_api, usd)
+
+# Loading environment variables
+load_dotenv()
 
 # Configure application
 app = Flask(__name__)
+app.config['SERVER_NAME'] = 'localhost:5000'
 
 # Custom filter
 app.jinja_env.filters["usd"] = usd
@@ -20,6 +30,22 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY")
 Session(app)
+
+# Instanciating oauth client
+oauth = OAuth(app=app)
+
+oauth.register(
+    name="google",
+    client_id=getenv("client_id_oauth"),
+    client_secret=getenv("oauth_secret"),
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    # Boilerplate code necessary for oauth flask register work
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    client_kwargs={'scope': 'openid email profile'},
+)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
@@ -119,14 +145,14 @@ def login():
     """Log user in"""
     # Forget any user_id
     session.pop("user_id", None)
-    
+
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         token = request.form.get("csrf_token")
         print(f"Form - {token}, session_token = {session.get('csrf_token')}")
         if not token or token != session.get("csrf_token"):
             abort(403)
-            
+
         # Ensure username was submitted
         if not request.form.get("username"):
             return apology("must provide username", 403)
@@ -156,6 +182,24 @@ def login():
     else:
         return render_template("login.html")
 
+@app.route("/google_login")
+def google_login():
+    # Redirecting in oauth 
+    redirect_uri = url_for('google_authorised', _external=True)
+    print(redirect_uri)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@app.route("/login/google/authorised")
+def google_authorised():
+    # Getting user info after he logged in with google
+    # TODO: this lines are commented but will be used later
+    # token = oauth.google.authorize_access_token()
+    # userinfo = oauth.google.get('userinfo')
+    # TODO: Extract user info and connect with the database
+    print(userinfo.json())
+    
+    return 'foo foo foo'
 
 @app.route("/logout")
 def logout():
