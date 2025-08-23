@@ -17,3 +17,6 @@ instance/
 
 # Environment / secrets
 .env
+venv
+/venv/
+/env
