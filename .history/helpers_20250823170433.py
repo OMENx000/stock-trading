@@ -2,6 +2,7 @@ import yfinance as yf # stock info
 from flask import redirect, render_template, session
 from functools import wraps
 from datetime import datetime
+import pytz
 
 def apology(message, code=400):
     """Render message as an apology to user."""
@@ -45,7 +46,7 @@ def login_required(f):
 
 
 def lookup(symbol):
-    """Look up quote for symbol using Yahoo Finance"""
+    """Look up quote for symbol using Yahoo Finance and only find data if market is open"""
     if not symbol: return None
     
     try:

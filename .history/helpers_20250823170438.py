@@ -2,6 +2,7 @@ import yfinance as yf # stock info
 from flask import redirect, render_template, session
 from functools import wraps
 from datetime import datetime
+import pytz
 
 def apology(message, code=400):
     """Render message as an apology to user."""

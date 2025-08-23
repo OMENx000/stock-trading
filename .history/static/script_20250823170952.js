@@ -33,7 +33,7 @@ function fetchStockInfo(symbolInputId, quantityInputId, infoDisplayId) {
 }
 
 
-// Function to update all stock prices from table cells only if market is open
+// Function to update all stock prices from table cells
 function updatePrices(priceCellPrefix, lookupUrl) {
 
     function fetchAndUpdate() {
