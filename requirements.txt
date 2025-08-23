@@ -3,3 +3,5 @@ Flask
 Flask-Session
 pytz
 requests
+google-generativeai
+yfinance
