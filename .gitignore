@@ -3,6 +3,8 @@ finance.db
 
 # Python cache
 __pycache__/
+myenv/
+env/
 *.pyc
 *.pyo
 
