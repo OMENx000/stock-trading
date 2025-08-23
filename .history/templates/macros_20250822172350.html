@@ -1,6 +1,0 @@
-{% macro secure_form(action, method="POST") -%}
-<form action="{{ action }}" method="{{ method }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    {{ caller() }}
-</form>
-{%- endmacro %}
