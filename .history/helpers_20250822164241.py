@@ -58,7 +58,8 @@ def lookup(symbol):
             "price": info["currentPrice"],
             "symbol": symbol.upper()
         }
-    except Exception:
+    except Exception as e:
+        print(f"Yahoo Finance error: {e}")
         return None
 
 

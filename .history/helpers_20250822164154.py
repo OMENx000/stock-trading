@@ -46,20 +46,20 @@ def login_required(f):
 
 def lookup(symbol):
     """Look up quote for symbol using Yahoo Finance."""
-    if not symbol: return None
+    if not symbol:
+        return None
     try:
         stock = yf.Ticker(symbol)
         info = stock.info
         # Some symbols may not return valid info
-        if not info or "longName" not in info or "currentPrice" not in info:
+        if not info or "shortName" not in info or "regularMarketPrice" not in info:
             return None
         return {
-            "name": info["longName"],
-            "price": info["currentPrice"],
+            "name": info["shortName"],
+            "price": info["regularMarketPrice"],
             "symbol": symbol.upper()
         }
-    except Exception:
-        return None
+    except Exception
 
 
 def usd(value):

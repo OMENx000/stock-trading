@@ -58,8 +58,7 @@ def lookup(symbol):
             "price": info["currentPrice"],
             "symbol": symbol.upper()
         }
-    except Exception:
-        return None
+    except Exception
 
 
 def usd(value):

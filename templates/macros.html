@@ -1,0 +1,6 @@
+{% macro secure_form(action, method="POST") -%}
+<form action="{{ action }}" method="{{ method }}">
+    <input type="hidden" name="csrf_token" value="{{ session['csrf_token'] }}">
+    {{ caller() }}
+</form>
+{%- endmacro %}

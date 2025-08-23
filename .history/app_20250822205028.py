@@ -110,7 +110,8 @@ def history():
 def login():
     """Log user in"""
     # Forget any user_id
-    session.pop("user_id", None)
+    session.clear()
+    set_csrf_token()
     
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
@@ -154,7 +155,7 @@ def logout():
     """Log user out"""
 
     # Forget any user_id
-    session.pop("user_id", None)
+    session.clear()
 
     # Redirect user to login form
     return redirect("/")
@@ -280,7 +281,7 @@ def lookup_api():
 def add_cash():
     user_info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
     if request.method == "POST":
-        cash = int(request.form.get("amount", default=0))
+        cash = int(request.form.get("cash", default=0))
         # if field is empty or number is less than 100
         if cash < 100:
             return apology("Enter amount greater than 100")

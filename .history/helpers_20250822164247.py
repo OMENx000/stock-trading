@@ -58,7 +58,7 @@ def lookup(symbol):
             "price": info["currentPrice"],
             "symbol": symbol.upper()
         }
-    except Exception:
+    except Exception as e:
         return None
 
 

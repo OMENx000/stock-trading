@@ -1,5 +1,5 @@
 from cs50 import SQL
-from flask import Flask, redirect, render_template, request, session, jsonify, url_for, abort
+from flask import Flask, redirect, render_template, request, session, jsonify, url_for
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from os import getenv
@@ -109,16 +109,12 @@ def history():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
+
     # Forget any user_id
-    session.pop("user_id", None)
-    
+    session.clear()
+
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        token = request.form.get("csrf_token")
-        print(f"Form - {token}, session_token = {session.get('csrf_token')}")
-        if not token or token != session.get("csrf_token"):
-            abort(403)
-            
         # Ensure username was submitted
         if not request.form.get("username"):
             return apology("must provide username", 403)
@@ -154,7 +150,7 @@ def logout():
     """Log user out"""
 
     # Forget any user_id
-    session.pop("user_id", None)
+    session.clear()
 
     # Redirect user to login form
     return redirect("/")
@@ -280,7 +276,7 @@ def lookup_api():
 def add_cash():
     user_info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
     if request.method == "POST":
-        cash = int(request.form.get("amount", default=0))
+        cash = int(request.form.get("cash", default=0))
         # if field is empty or number is less than 100
         if cash < 100:
             return apology("Enter amount greater than 100")
