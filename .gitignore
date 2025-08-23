@@ -8,6 +8,9 @@ env/
 *.pyc
 *.pyo
 
+# Local history
+.history/
+
 # Flask session and runtime files
 flask_session/
 instance/
