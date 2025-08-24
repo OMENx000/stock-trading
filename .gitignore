@@ -8,6 +8,7 @@ __pycache__/
 
 # local history
 .history/
+data.txt
 
 # Flask session and runtime files
 flask_session/
