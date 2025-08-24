@@ -71,9 +71,12 @@ def buy():
     if request.method == "POST":
         symbol, quantity = request.form.get("symbol").upper(), request.form.get("quantity")
         quantity = check_quantity(quantity)
-        if not quantity or not symbol:
+        if not quantity:
             return apology("Enter Valid quantity")
+        if not symbol:
+            return apology("Enter Valid Symbol")
         
+        '''
         info = lookup(symbol)
         if not symbol or not info: # if symbol is wrong
             return apology("Enter Valid Symbol")
@@ -103,9 +106,24 @@ def buy():
                    user_info["id"], info["name"], symbol, "P", quantity, info["price"], dt)
 
         return redirect("/")
+        '''
+    
     user_company_symbol = request.args.get("symbol", default="")
-    return render_template("purchase.html", balance=balance, symbol=user_company_symbol)
+    return render_template("purchase.html", balance=balance, user_symbol=user_company_symbol)
+    
+@app.route("/company/stock")
+@login_required
+def company_stock():
+    """Renders main page for any particular stock"""
+    symbol = request.args.get("symbol")
+    if not symbol:
+        return apology("No symbol provided")
 
+    info = lookup(symbol)
+    if not info:
+        return apology("Invalid symbol")
+
+    return render_template("stock.html", info=info)
 
 @app.route("/history")
 @login_required

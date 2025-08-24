@@ -57,7 +57,8 @@ def lookup(symbol):
         return {
             "name": info["longName"],
             "price": info["currentPrice"],
-            "symbol": symbol.upper()
+            "symbol": symbol.upper(),
+            "domain": info.get("website")
         }
     except Exception:
         return None

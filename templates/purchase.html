@@ -9,9 +9,9 @@
 {% block main %}
     <div class="main-box">
         <div class="main-header">PURCHASE</div>
-        {% call secure_form("/buy") %}
+        {% call secure_form("/company/stock") %}
             <div class="mb-3">
-                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="symbol-input" name="symbol" placeholder="Enter Company's Symbol" type="text" value="{{ symbol }}">
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="symbol-input" name="symbol" placeholder="Enter Company's Symbol" type="text" value="{{ user_symbol }}">
             </div>
             <div id="stock-info" class="mt-2 text-center text-muted"></div>
             <div class="mb-3">
