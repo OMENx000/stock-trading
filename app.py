@@ -3,6 +3,7 @@ from datetime import datetime
 from os import getenv
 
 import pytz
+import pandas_market_calendars as mcal # check if the market is open
 from authlib.integrations.flask_client import OAuth
 from cs50 import SQL
 from dotenv import load_dotenv
@@ -78,12 +79,23 @@ def index():
     context["cash"] = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])[0]["cash"]
     context["total"] = context["cash"] + sum
     
-    # check if market is open or close
-    est = pytz.timezone("US/Eastern")
-    now_est = datetime.now(est)
-    us_open = now_est.replace(hour=9, minute=30, second=0, microsecond=0)
-    us_close = now_est.replace(hour=16, minute=0, microsecond=0)
-    market_open = us_open <= now_est <= us_close
+    # check if market is open or close (currently only for us market)
+    # Get NYSE calendar
+    nyse = mcal.get_calendar('NYSE')
+  
+    # Current datetime in Eastern Time
+    et = pytz.timezone('US/Eastern')
+    now = datetime.now(et)
+    today = now.date()
+
+    # Get today's schedule
+    schedule = nyse.schedule(start_date=tomorrow, end_date=tomorrow)
+
+    if schedule.empty: # if there is ne schedule (holiday or wwekend) 
+        market_open = False
+    else:
+        # Check if market is open now
+        market_open = nyse.open_at_time(schedule, now)
 
     return render_template("index.html", context=context, market_open=market_open)
 
