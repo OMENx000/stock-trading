@@ -111,19 +111,19 @@ def buy():
     user_company_symbol = request.args.get("symbol", default="")
     return render_template("purchase.html", balance=balance, user_symbol=user_company_symbol)
     
-@app.route("/company/stock")
+@app.route("/company/stock", methods=["GET", "POST"])
 @login_required
 def company_stock():
     """Renders main page for any particular stock"""
-    symbol = request.args.get("symbol")
+    symbol = request.form.get("symbol")
     if not symbol:
         return apology("No symbol provided")
 
     info = lookup(symbol)
     if not info:
-        return apology("Invalid symbol")
+        return apology("No data available")
 
-    return render_template("stock.html", info=info)
+    return render_template("company_stock.html", info=info)
 
 @app.route("/history")
 @login_required
@@ -186,19 +186,17 @@ def logout():
     return redirect("/")
 
 
-@app.route("/quote", methods=["GET", "POST"])
+@app.route("/stocks", methods=["GET", "POST"])
 @login_required
-def quote():
+def stocks():
     """Get stock quote."""
-    if request.method == "POST":
-        symbol = request.form.get("symbol")
-        info = lookup(symbol)
-
-        if not symbol or not info: # if input is wrong
-            return apology("Enter Valid Symbol")
-        return render_template("quote.html", info=info) # if request is post and input is correct
-    user_company_symbol = request.args.get("symbol", default="")
-    return render_template("quote.html", symbol=user_company_symbol) # get request
+    # request from /get_symbol
+    if request.method == "POST": # ai symbol search
+        symbol = request.args.get("symbol")
+        return redirect(url_for("stock")) if symbol else apology("Enter Valid Symbol")
+    
+    symbol = request.args.get("symbol", default="") # already being checked in get_symbol
+    return render_template("stocks.html", symbol=symbol) # if request is post and input is correct
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -319,16 +317,16 @@ def add_cash():
 
 @app.route("/get_symbol", methods=["GET", "POST"])
 def get_symbol():
-    ''' Finds symbol from with ai model and fill in the field (works for both purchase and quote page)'''
+    ''' Finds symbol from with ai model and fill in the field (works for both purchase and stocks page)'''
     company_name = request.form.get("company_name")
     source = request.form.get("source") # which page has sent the request
     
     if not company_name:
-        return redirect("/buy") if source == "purchase_page" else redirect("/quote")
+        return redirect("/buy") if source == "purchase_page" else redirect("/stocks")
     
     symbol = symbol_api(company_name) # get symbol
     
     if "sorry" in symbol:  # if anything else entered other than company name
         return apology("Sorry! Enter Valid Company Name")
     
-    return redirect(url_for("buy", symbol=symbol)) if source == "purchase_page" else redirect(url_for("quote", symbol=symbol))
+    return redirect(url_for("buy", symbol=symbol)) if source == "purchase_page" else redirect(url_for("stocks", symbol=symbol))

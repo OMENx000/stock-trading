@@ -65,7 +65,7 @@ This was developed as a learning project to explore web development, databases, 
 ## Usage
 1. **Register** yourself in register page
 2. **Login** with same credentials
-3. **Quote** page is the one in which you can search for stock price by putting stock symbol
+3. **Stocks** page is the one in which you can search for stock price by putting stock symbol
 4. **Buy** page is for buying stocks.
 5 **Sell** your stocks on sell page.
 6. You can view all of your **history**.
