@@ -1,70 +1,92 @@
 <!DOCTYPE html>
 
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
 
-    <head>
+    <!-- http://getbootstrap.com/docs/5.3/ -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
 
-        <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1, width=device-width">
+    <!-- https://favicon.io/emoji-favicons/money-bag/ -->
+    <link href="/static/favicon.ico" rel="icon" />
 
-        <!-- http://getbootstrap.com/docs/5.3/ -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="/static/styles.css" rel="stylesheet" />
 
-        <!-- https://favicon.io/emoji-favicons/money-bag/ -->
-        <link href="/static/favicon.ico" rel="icon">
+    <script src="/static/script.js"></script>
 
-        <link href="/static/styles.css" rel="stylesheet">
+    <title>Berkshire Hathaway: {% block title %}{% endblock %}</title>
+  </head>
 
-        <script src="/static/script.js"></script>
-
-        <title>Berkshire Hathaway: {% block title %}{% endblock %}</title>
-
-    </head>
-
-    <body>
-
-        <nav class="bg-light border navbar navbar-expand-md navbar-light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/"><span class="black">Omen</span> <span class="red">Trades</span></a>
-                <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbar">
-                    {% if session["user_id"] %}
-                        <ul class="navbar-nav me-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/quote">Quote</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/buy">Buy</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/sell">Sell</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/add_cash">Add Cash</a></li>
-                        </ul>
-                        <ul class="navbar-nav ms-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/change-password">Change Password</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
-                        </ul>
-                    {% else %}
-                        <ul class="navbar-nav ms-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
-                        </ul>
-                    {% endif %}
-                </div>
+  <body>
+    <nav>
+      <a href="/" class="logo"
+        ><span style="color: #aec3b0">Omen</span>
+        <span style="color: #339063">Trades</span></a
+      >
+      {% if session["user_id"] %}
+      <div class="nav-links">
+        <a href="/" class="nav-link">Dashboard</a>
+        <a class="nav-link">Portfolio</a>
+        <div class=" nav-dropdown">
+            <p class="nav-link h">Trade</p>
+            <div class="nav-dropdown-content">
+                <a href="/buy">Buy&nbsp;</a> <span style="font-size: 1.3rem;">/</span> 
+                <a href="/sell">&nbsp;Sell</a>
             </div>
-        </nav>
+        </div>
+        <a href="/add_cash" class="nav-link">Add Cash</a>
+      </div>
+      <div class="dropdown">
+        <svg
+          class="user-profile"
+          width="41"
+          height="39"
+          viewBox="0 0 41 39"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M38.8333 36.375V32.625C38.8333 30.6359 37.8675 28.7282 36.1484 27.3217C34.4294 25.9152 32.0978 25.125 29.6666 25.125H11.3333C8.90214 25.125 6.57056 25.9152 4.85148 27.3217C3.1324 28.7282 2.16663 30.6359 2.16663 32.625V36.375M29.6666 10.125C29.6666 14.2671 25.5626 17.625 20.5 17.625C15.4373 17.625 11.3333 14.2671 11.3333 10.125C11.3333 5.98286 15.4373 2.625 20.5 2.625C25.5626 2.625 29.6666 5.98286 29.6666 10.125Z"
+            stroke="#009951"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
 
-        {% if get_flashed_messages() %}
-            <header>
-                <div class="alert alert-primary mb-0 text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }}
-                </div>
-            </header>
-        {% endif %}
+        <div class="dropdown-content">
+          <a href="/change-password">Change Password</a>
+          <a href="/logout">Log Out</a>
+        </div>
+      </div>
+      {% else %}
+      <div class="nav-links">
+        <a class="nav-link" href="/register">Register</a>
+        <a class="nav-link" href="/login">Log In</a>
+      </div>
+      {% endif %}
+    </nav>
+    {% if get_flashed_messages() %}
+    <header>
+      <div class="alert alert-primary mb-0 text-center" role="alert">
+        {{ get_flashed_messages() | join(" ") }}
+      </div>
+    </header>
+    {% endif %}
 
-        <main class="container py-5 text-center">
-            {% block main %}{% endblock %}
-        </main>
-    </body>
-
+    <main class="container py-5 text-center">
+      {% block main %}{% endblock %}
+    </main>
+  </body>
 </html>
