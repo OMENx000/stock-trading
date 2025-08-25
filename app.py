@@ -21,6 +21,9 @@ load_dotenv()
 # Configure application
 app = Flask(__name__)
 
+# using local host
+app.config["SERVER_NAME"] = "localhost:5000"
+
 # Custom filter
 app.jinja_env.filters["usd"] = usd
 app.jinja_env.filters["convert_dt"] = convert_dt
