@@ -58,7 +58,7 @@ This was developed as a learning project to explore web development, databases, 
 
 5. Run - flask run
 
-6. Go to http://127.0.0.1:5000
+6. Go to http://localhost:5000
 
 
 

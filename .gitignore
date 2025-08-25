@@ -3,6 +3,8 @@ finance.db
 
 # Python cache
 __pycache__/
+myenv/
+env/
 *.pyc
 *.pyo
 
@@ -16,3 +18,6 @@ instance/
 
 # Environment / secrets
 .env
+venv
+/venv/
+/env
