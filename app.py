@@ -53,7 +53,6 @@ oauth.register(
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
 
-
 @app.before_request
 def set_csrf_token():
     '''Generate csrf manual token for forms'''
@@ -67,7 +66,6 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
-
 
 @app.route("/")
 @login_required
@@ -93,11 +91,13 @@ def index():
     # Get today's schedule
     schedule = nyse.schedule(start_date=today, end_date=today)
 
-    if schedule.empty: # if there is ne schedule (holiday or wwekend) 
+    if schedule.empty:  # holiday or weekend
         market_open = False
     else:
-        # Check if market is open now
-        market_open = nyse.open_at_time(schedule, now)
+        try:
+            market_open = nyse.open_at_time(schedule, now)
+        except ValueError:
+            market_open = False  # now is outside market hours
 
     return render_template("index.html", context=context, market_open=market_open)
 
