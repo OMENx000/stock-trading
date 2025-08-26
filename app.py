@@ -15,6 +15,7 @@ from flask_session import Session
 from helpers import (apology, check_quantity, convert_dt, login_required,
                      lookup, symbol_api, usd)
 
+
 # Loading environment variables
 load_dotenv()
 
@@ -36,19 +37,6 @@ Session(app)
 
 # Instanciating oauth client
 oauth = OAuth(app=app)
-
-oauth.register(
-    name="google",
-    client_id=getenv("client_id_oauth"),
-    client_secret=getenv("oauth_secret"),
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    # Boilerplate code necessary for oauth flask register work
-    access_token_params=None,
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
-    authorize_params=None,
-    api_base_url='https://www.googleapis.com/oauth2/v1/',
-    client_kwargs={'scope': 'openid email profile'},
-)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
@@ -214,24 +202,42 @@ def login():
     else:
         return render_template("login.html")
 
-@app.route("/google_login")
+@app.route('/login/google')
 def google_login():
-    # Redirecting in oauth 
-    redirect_uri = url_for('google_authorised', _external=True)
-    print(redirect_uri)
-    return oauth.google.authorize_redirect(redirect_uri)
+    ''' Google Oauth Config '''
+    GOOGLE_CLIENT_ID = getenv("client_id_oauth")
+    GOOGLE_CLIENT_SECRET = getenv("oauth_secret")
+        
+    # Generate a secure random nonce
+    my_nonce = secrets.token_urlsafe(16)
+    session['nonce'] = my_nonce
+    
+    CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+    oauth.register(
+        name='google',
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        server_metadata_url=CONF_URL,  # get authorisation and callback url automatically
+        client_kwargs={
+            'scope': 'openid email profile' # get openid, email and profile
+        }
+    )
+    
+    # Redirect to google_auth function
+    redirect_uri = url_for('google_auth', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri, nonce=my_nonce)
 
+@app.route('/login/google/authorised')
+def google_auth():
+    ''' Handle google redirect '''
 
-@app.route("/login/google/authorised")
-def google_authorised():
-    # Getting user info after he logged in with google
-    # TODO: this lines are commented but will be used later
-    token = oauth.google.authorize_access_token()
-    userinfo = oauth.google.get('userinfo')
-    # TODO: Extract user info and connect with the database
-    print(userinfo.json())
+    token = oauth.google.authorize_access_token() # user indentity token
+    if not token:
+        return apology("Some error! Try again")
 
-    return 'foo foo foo'
+    user = oauth.google.parse_id_token(token, nonce=session['nonce'])
+    print(" Google User ", user)
+    return redirect('/')
 
 @app.route("/logout")
 def logout():

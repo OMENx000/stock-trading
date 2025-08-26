@@ -291,3 +291,11 @@
  'volume': 24287463,
  'website': 'https://www.microsoft.com',
  'zip': '98052-6399'}
+
+
+Google User  {'iss': 'https://accounts.google.com', 'azp': '271662388951-j23l0vdjg87s94ijig18g7q37lepdi3q.apps.googleusercontent.com',
+ 'aud': '271662388951-j23l0vdjg87s94ijig18g7q37lepdi3q.apps.googleusercontent.com', 'sub': '111906494568385100713',
+  'email': 'amarsuri786pb29@gmail.com', 'email_verified': True, 'at_hash': 'fHBAuRg4rSSHbvx1CfprIg', 
+  'nonce': 'twIbMczz3dZfbdEmXTOFMQ', 'name': 'IRON BARK', 
+  'picture': 'https://lh3.googleusercontent.com/a/ACg8ocLy0tfkVBG1mbaK5Zvm-0UVRmOLLiAREtZfKty7sLAkpdRhn3Q1=s96-c',
+   'given_name': 'IRON', 'family_name': 'BARK', 'iat': 1756219539, 'exp': 1756223139}
