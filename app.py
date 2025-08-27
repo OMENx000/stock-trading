@@ -13,7 +13,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_session import Session
 from helpers import (apology, check_quantity, convert_dt, login_required,
-                     lookup, symbol_api, usd)
+                     lookup, symbol_api, usd, verify_email)
 
 
 # Loading environment variables
@@ -97,6 +97,9 @@ def buy():
     balance = int(user_info["cash"])
 
     if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         symbol, quantity = request.form.get("symbol").upper(), request.form.get("quantity")
         quantity = check_quantity(quantity)
         if not quantity:
@@ -169,26 +172,28 @@ def login():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         token = request.form.get("csrf_token")
-        print(f"Form - {token}, session_token = {session.get('csrf_token')}")
         if not token or token != session.get("csrf_token"):
             abort(403)
             
-        # Ensure username was submitted
-        if not request.form.get("username"):
+        email = request.form.get("email")
+        password = request.form.get("password")
+        
+        # Ensure email was submitted
+        if not email:
             return apology("must provide username", 403)
 
         # Ensure password was submitted
-        elif not request.form.get("password"):
+        elif not password:
             return apology("must provide password", 403)
 
         # Query database for username
         rows = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username")
+            "SELECT * FROM users WHERE email = ?", email
         )
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(
-            rows[0]["hash"], request.form.get("password")
+            rows[0]["hash"], password
         ):
             return apology("invalid username and/or password", 403)
 
@@ -232,7 +237,17 @@ def google_auth():
     ''' Handle google redirect '''
     token = oauth.google.authorize_access_token() # user indentity token
     user = oauth.google.parse_id_token(token, nonce=session['nonce'])
-    print(" Google User ", user)
+    
+    # check if user already in db
+    rows = db.execute("SELECT * FROM users WHERE email = ?", user["email"])
+    if not rows:  # does not exist
+        
+        # register user
+        hash = secrets.token_hex(16)
+        db.execute("INSERT INTO users(username, email, hash) VALUES (?, ?, ?)", user["name"], user["email"], hash) # put 
+        rows = db.execute("SELECT * FROM users WHERE email = ?", user["email"])
+        
+    session["user_id"] = rows[0]["id"] 
     return redirect('/')
 
 @app.route("/logout")
@@ -252,6 +267,9 @@ def stocks():
     """Get stock quote."""
     # request from /get_symbol
     if request.method == "POST": # ai symbol search
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         symbol = request.args.get("symbol")
         return redirect(url_for("stock")) if symbol else apology("Enter Valid Symbol")
     
@@ -262,16 +280,23 @@ def stocks():
 def register():
     """Register user"""
     if request.method == "POST":
-        username, password, confirmation = request.form.get("username"), request.form.get("password"), request.form.get("confirmation")
-        if not username or not password or not confirmation: # if any field is blank
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
+        username, email, password, confirmation = request.form.get("username"), request.form.get("email"), request.form.get("password"), request.form.get("confirmation")
+        if not username or not password or not confirmation or not email: # if any field is blank
             return apology("You must fill all fields correctly!")
+        
+        if not verify_email(email):
+            return abort(403)
+        
         if password != confirmation:
             return apology("Passwords does not match")
         if db.execute("SELECT * FROM users WHERE username = ?", username):  # username already taken
             return apology("Username is already taken!")
 
         hash = generate_password_hash(password)
-        db.execute("INSERT INTO users(username, hash) VALUES (?, ?)", username, hash) # put into database
+        db.execute("INSERT INTO users(username, email, hash) VALUES (?, ?, ?)", username, email, hash) # put into database
 
         return redirect("/login")
     return render_template("register.html") # get request
@@ -286,6 +311,9 @@ def sell():
     shares_owned = db.execute("SELECT * FROM shares_owned WHERE user_id = ?", user_info["id"])
 
     if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         symbol, quantity = request.form.get("symbol"), request.form.get("quantity")
         quantity = check_quantity(quantity)
         if not quantity:
@@ -327,6 +355,9 @@ def sell():
 def change_password():
     ''' Users can change password when logged in'''
     if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         current_password, new_password = request.form.get("current_password"), request.form.get("new_password")
         if not current_password or not new_password or not request.form.get("confirm_new_password"): # check all fields are filled
             return apology("Enter Valid Credentials")
@@ -364,6 +395,9 @@ def lookup_api():
 def add_cash():
     user_info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
     if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         cash = int(request.form.get("amount", default=0))
         # if field is empty or number is less than 100
         if cash < 100:

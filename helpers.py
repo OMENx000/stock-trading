@@ -2,6 +2,9 @@ import yfinance as yf # stock info
 from flask import redirect, render_template, session
 from functools import wraps
 from datetime import datetime
+from os import getenv
+from dotenv import load_dotenv
+from requests import get
 
 def apology(message, code=400):
     """Render message as an apology to user."""
@@ -116,3 +119,14 @@ def symbol_api(company_name):
     response = model.generate_content(prompt)
 
     return response.text
+
+def verify_email(email):
+    load_dotenv()
+    api_key = getenv("MAIL_API_KEY")
+    url = f"http://apilayer.net/api/check?access_key={api_key}&email={email}&format=1"
+    response = get(url)
+    data =  response.json()
+    return (
+            data.get('format_valid') and
+            data.get('mx_found')
+        )
