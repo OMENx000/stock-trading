@@ -230,11 +230,7 @@ def google_login():
 @app.route('/login/google/authorised')
 def google_auth():
     ''' Handle google redirect '''
-
     token = oauth.google.authorize_access_token() # user indentity token
-    if not token:
-        return apology("Some error! Try again")
-
     user = oauth.google.parse_id_token(token, nonce=session['nonce'])
     print(" Google User ", user)
     return redirect('/')
