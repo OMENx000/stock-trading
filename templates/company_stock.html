@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ info.name if info else "Stock" }}
+{% endblock %}
+
+{% block main %}
+    {% if info %}
+        <div class="stock-info-box">
+            <img src="https://www.google.com/s2/favicons?domain={{ info.domain }}&sz=64" alt="favicon">
+            <h3>{{ info.longName }}</h3>
+            <p><strong>Symbol:</strong> {{ info.symbol }}</p>
+            <p><strong>Price:</strong> ${{ info.price }}</p>
+            <!-- Placeholder for graph -->
+            <div id="stock-graph">
+                <p class="text-muted">[Graph will appear here]</p>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-danger">No stock information available.</p>
+    {% endif %}
+{% endblock %}

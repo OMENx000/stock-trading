@@ -13,14 +13,17 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_session import Session
 from helpers import (apology, check_quantity, convert_dt, login_required,
-                     lookup, symbol_api, usd)
+                     lookup, symbol_api, usd, verify_email)
+
 
 # Loading environment variables
 load_dotenv()
 
 # Configure application
 app = Flask(__name__)
-app.config['SERVER_NAME'] = 'localhost:5000'
+
+# using local host
+app.config["SERVER_NAME"] = "localhost:5000"
 
 # Custom filter
 app.jinja_env.filters["usd"] = usd
@@ -35,22 +38,8 @@ Session(app)
 # Instanciating oauth client
 oauth = OAuth(app=app)
 
-oauth.register(
-    name="google",
-    client_id=getenv("client_id_oauth"),
-    client_secret=getenv("oauth_secret"),
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    # Boilerplate code necessary for oauth flask register work
-    access_token_params=None,
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
-    authorize_params=None,
-    api_base_url='https://www.googleapis.com/oauth2/v1/',
-    client_kwargs={'scope': 'openid email profile'},
-)
-
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
-
 
 @app.before_request
 def set_csrf_token():
@@ -65,7 +54,6 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
-
 
 @app.route("/")
 @login_required
@@ -109,11 +97,17 @@ def buy():
     balance = int(user_info["cash"])
 
     if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         symbol, quantity = request.form.get("symbol").upper(), request.form.get("quantity")
         quantity = check_quantity(quantity)
-        if not quantity or not symbol:
+        if not quantity:
             return apology("Enter Valid quantity")
+        if not symbol:
+            return apology("Enter Valid Symbol")
         
+        '''
         info = lookup(symbol)
         if not symbol or not info: # if symbol is wrong
             return apology("Enter Valid Symbol")
@@ -143,9 +137,24 @@ def buy():
                    user_info["id"], info["name"], symbol, "P", quantity, info["price"], dt)
 
         return redirect("/")
+        '''
+    
     user_company_symbol = request.args.get("symbol", default="")
-    return render_template("purchase.html", balance=balance, symbol=user_company_symbol)
+    return render_template("purchase.html", balance=balance, user_symbol=user_company_symbol)
+    
+@app.route("/company/stock", methods=["GET", "POST"])
+@login_required
+def company_stock():
+    """Renders main page for any particular stock"""
+    symbol = request.form.get("symbol")
+    if not symbol:
+        return apology("No symbol provided")
 
+    info = lookup(symbol)
+    if not info:
+        return apology("No data available")
+
+    return render_template("company_stock.html", info=info)
 
 @app.route("/history")
 @login_required
@@ -159,30 +168,32 @@ def login():
     """Log user in"""
     # Forget any user_id
     session.pop("user_id", None)
-
+    
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         token = request.form.get("csrf_token")
-        print(f"Form - {token}, session_token = {session.get('csrf_token')}")
         if not token or token != session.get("csrf_token"):
             abort(403)
-
-        # Ensure username was submitted
-        if not request.form.get("username"):
+            
+        email = request.form.get("email")
+        password = request.form.get("password")
+        
+        # Ensure email was submitted
+        if not email:
             return apology("must provide username", 403)
 
         # Ensure password was submitted
-        elif not request.form.get("password"):
+        elif not password:
             return apology("must provide password", 403)
 
         # Query database for username
         rows = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username")
+            "SELECT * FROM users WHERE email = ?", email
         )
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(
-            rows[0]["hash"], request.form.get("password")
+            rows[0]["hash"], password
         ):
             return apology("invalid username and/or password", 403)
 
@@ -196,24 +207,48 @@ def login():
     else:
         return render_template("login.html")
 
-@app.route("/google_login")
+@app.route('/login/google')
 def google_login():
-    # Redirecting in oauth 
-    redirect_uri = url_for('google_authorised', _external=True)
-    print(redirect_uri)
-    return oauth.google.authorize_redirect(redirect_uri)
-
-
-@app.route("/login/google/authorised")
-def google_authorised():
-    # Getting user info after he logged in with google
-    # TODO: this lines are commented but will be used later
-    # token = oauth.google.authorize_access_token()
-    # userinfo = oauth.google.get('userinfo')
-    # TODO: Extract user info and connect with the database
-    print(userinfo.json())
+    ''' Google Oauth Config '''
+    GOOGLE_CLIENT_ID = getenv("client_id_oauth")
+    GOOGLE_CLIENT_SECRET = getenv("oauth_secret")
+        
+    # Generate a secure random nonce
+    my_nonce = secrets.token_urlsafe(16)
+    session['nonce'] = my_nonce
     
-    return 'foo foo foo'
+    CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+    oauth.register(
+        name='google',
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        server_metadata_url=CONF_URL,  # get authorisation and callback url automatically
+        client_kwargs={
+            'scope': 'openid email profile' # get openid, email and profile
+        }
+    )
+    
+    # Redirect to google_auth function
+    redirect_uri = url_for('google_auth', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri, nonce=my_nonce)
+
+@app.route('/login/google/authorised')
+def google_auth():
+    ''' Handle google redirect '''
+    token = oauth.google.authorize_access_token() # user indentity token
+    user = oauth.google.parse_id_token(token, nonce=session['nonce'])
+    
+    # check if user already in db
+    rows = db.execute("SELECT * FROM users WHERE email = ?", user["email"])
+    if not rows:  # does not exist
+        
+        # register user
+        hash = secrets.token_hex(16)
+        db.execute("INSERT INTO users(username, email, hash) VALUES (?, ?, ?)", user["name"], user["email"], hash) # put 
+        rows = db.execute("SELECT * FROM users WHERE email = ?", user["email"])
+        
+    session["user_id"] = rows[0]["id"] 
+    return redirect('/')
 
 @app.route("/logout")
 def logout():
@@ -226,34 +261,42 @@ def logout():
     return redirect("/")
 
 
-@app.route("/quote", methods=["GET", "POST"])
+@app.route("/stocks", methods=["GET", "POST"])
 @login_required
-def quote():
+def stocks():
     """Get stock quote."""
-    if request.method == "POST":
-        symbol = request.form.get("symbol")
-        info = lookup(symbol)
-
-        if not symbol or not info: # if input is wrong
-            return apology("Enter Valid Symbol")
-        return render_template("quote.html", info=info) # if request is post and input is correct
-    user_company_symbol = request.args.get("symbol", default="")
-    return render_template("quote.html", symbol=user_company_symbol) # get request
+    # request from /get_symbol
+    if request.method == "POST": # ai symbol search
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
+        symbol = request.args.get("symbol")
+        return redirect(url_for("stock")) if symbol else apology("Enter Valid Symbol")
+    
+    symbol = request.args.get("symbol", default="") # already being checked in get_symbol
+    return render_template("stocks.html", symbol=symbol) # if request is post and input is correct
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
     if request.method == "POST":
-        username, password, confirmation = request.form.get("username"), request.form.get("password"), request.form.get("confirmation")
-        if not username or not password or not confirmation: # if any field is blank
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
+        username, email, password, confirmation = request.form.get("username"), request.form.get("email"), request.form.get("password"), request.form.get("confirmation")
+        if not username or not password or not confirmation or not email: # if any field is blank
             return apology("You must fill all fields correctly!")
+        
+        if not verify_email(email):
+            return abort(403)
+        
         if password != confirmation:
             return apology("Passwords does not match")
         if db.execute("SELECT * FROM users WHERE username = ?", username):  # username already taken
             return apology("Username is already taken!")
 
         hash = generate_password_hash(password)
-        db.execute("INSERT INTO users(username, hash) VALUES (?, ?)", username, hash) # put into database
+        db.execute("INSERT INTO users(username, email, hash) VALUES (?, ?, ?)", username, email, hash) # put into database
 
         return redirect("/login")
     return render_template("register.html") # get request
@@ -268,6 +311,9 @@ def sell():
     shares_owned = db.execute("SELECT * FROM shares_owned WHERE user_id = ?", user_info["id"])
 
     if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         symbol, quantity = request.form.get("symbol"), request.form.get("quantity")
         quantity = check_quantity(quantity)
         if not quantity:
@@ -309,6 +355,9 @@ def sell():
 def change_password():
     ''' Users can change password when logged in'''
     if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         current_password, new_password = request.form.get("current_password"), request.form.get("new_password")
         if not current_password or not new_password or not request.form.get("confirm_new_password"): # check all fields are filled
             return apology("Enter Valid Credentials")
@@ -346,6 +395,9 @@ def lookup_api():
 def add_cash():
     user_info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
     if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
         cash = int(request.form.get("amount", default=0))
         # if field is empty or number is less than 100
         if cash < 100:
@@ -354,21 +406,21 @@ def add_cash():
             return apology("Be in your limits")
 
         db.execute("UPDATE users SET cash=? WHERE id=?", cash + user_info[0]["cash"], user_info[0]["id"])
-        return redirect("/buy")
+        return redirect("/stocks")
     return render_template("add_cash.html", balance=user_info[0]["cash"])
 
 @app.route("/get_symbol", methods=["GET", "POST"])
 def get_symbol():
-    ''' Finds symbol from with ai model and fill in the field (works for both purchase and quote page)'''
+    ''' Finds symbol from with ai model and fill in the field (works for both purchase and stocks page)'''
     company_name = request.form.get("company_name")
     source = request.form.get("source") # which page has sent the request
     
     if not company_name:
-        return redirect("/buy") if source == "purchase_page" else redirect("/quote")
+        return redirect("/buy") if source == "purchase_page" else redirect("/stocks")
     
     symbol = symbol_api(company_name) # get symbol
     
     if "sorry" in symbol:  # if anything else entered other than company name
         return apology("Sorry! Enter Valid Company Name")
     
-    return redirect(url_for("buy", symbol=symbol)) if source == "purchase_page" else redirect(url_for("quote", symbol=symbol))
+    return redirect(url_for("buy", symbol=symbol)) if source == "purchase_page" else redirect(url_for("stocks", symbol=symbol))

@@ -8,14 +8,14 @@
 {% block main %}
     {% call secure_form("/login") %}
         <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="email" placeholder="Email" type="email">
         </div>
         <div class="mb-3">
             <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
         </div>
-        <div class="mb-3">
+        <div class="mb-6">
             <a href="{{ url_for('google_login') }}" class="btn btn-primary mt-3">Login with Google</a>
+            <button class="btn btn-primary mt-3" type="submit">Log In</button>
         </div>
-        <button class="btn btn-primary" type="submit">Log In</button>
     {% endcall %}
 {% endblock %}
