@@ -1,10 +1,11 @@
 {% extends "layout.html" %} {% from "macros.html" import secure_form %} {% block
 title %} Log In {% endblock %} {% block main %}
 <div class="container" id="container">
-  {% call secure_form("/register") %}
+  {% call secure_form("/auth") %}
   <div class="form-container sign-up">
-    <form>
+  
       <h1>Create Account</h1>
+      <input type="hidden" name="form_type" value="register">
       <input
         autocomplete="off"
         autofocus
@@ -39,12 +40,14 @@ title %} Log In {% endblock %} {% block main %}
           Login with Google
         </a>
       </div>
-    </form>
+   
   </div>
-  {% endcall %} {% call secure_form("/login") %}
+  {% endcall %} 
+  {% call secure_form("/auth") %}
   <div class="form-container sign-in">
-    <form>
+    
       <h1>Sign In</h1>
+      <input type="hidden" name="form_type" value="login">
       <input
         autocomplete="off"
         autofocus
@@ -68,7 +71,7 @@ title %} Log In {% endblock %} {% block main %}
           Login with Google
         </a>
       </div>
-    </form>
+    
   </div>
   {% endcall %}
   <div class="toggle-container">

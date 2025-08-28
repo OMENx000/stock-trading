@@ -56,38 +56,43 @@ def after_request(response):
     return response
 
 @app.route("/")
-@login_required
 def index():
-    """Show portfolio of stocks, only update prices if market is open"""
-    context = {}
-    context["shares"] = db.execute("SELECT * FROM shares_owned WHERE user_id = ?", session["user_id"])
-    sum = db.execute("SELECT SUM(total_holdings) FROM shares_owned WHERE user_id = ?", session["user_id"])[0]["SUM(total_holdings)"]
-    if not sum:
-        sum = 0
-    context["cash"] = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])[0]["cash"]
-    context["total"] = context["cash"] + sum
-    
-    # check if market is open or close (currently only for us market)
-    # Get NYSE calendar
-    nyse = mcal.get_calendar('NYSE')
-  
-    # Current datetime in Eastern Time
-    et = pytz.timezone('US/Eastern')
-    now = datetime.now(et)
-    today = now.date()
-
-    # Get today's schedule
-    schedule = nyse.schedule(start_date=today, end_date=today)
-
-    if schedule.empty:  # holiday or weekend
-        market_open = False
+    if "user_id" not in session:
+        return redirect("/auth")
     else:
-        try:
-            market_open = nyse.open_at_time(schedule, now)
-        except ValueError:
-            market_open = False  # now is outside market hours
+        """Show portfolio of stocks, only update prices if market is open"""
+        context = {}
+        context["shares"] = db.execute("SELECT * FROM shares_owned WHERE user_id = ?", session["user_id"])
+        sum = db.execute("SELECT SUM(total_holdings) FROM shares_owned WHERE user_id = ?", session["user_id"])[0]["SUM(total_holdings)"]
+        if not sum:
+            sum = 0
+        context["cash"] = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])[0]["cash"]
+        context["total"] = context["cash"] + sum
+        
+        # check if market is open or close (currently only for us market)
+        # Get NYSE calendar
+        nyse = mcal.get_calendar('NYSE')
+    
+        # Current datetime in Eastern Time
+        et = pytz.timezone('US/Eastern')
+        now = datetime.now(et)
+        today = now.date()
 
-    return render_template("index.html", context=context, market_open=market_open)
+        # Get today's schedule
+        schedule = nyse.schedule(start_date=today, end_date=today)
+
+        if schedule.empty:  # holiday or weekend
+            market_open = False
+        else:
+            try:
+                market_open = nyse.open_at_time(schedule, now)
+            except ValueError:
+                market_open = False  # now is outside market hours
+
+        return render_template("index.html", context=context, market_open=market_open)
+@app.route("/check")
+def check():
+    return str(session)
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -163,54 +168,72 @@ def history():
     context = db.execute("SELECT * FROM history WHERE user_id = ?", session["user_id"])
     return render_template("history.html", context=context)
 
-@app.route("/login_register", methods=["GET", "POST"])
-def loginRegister():
-    return render_template("login_register.html")
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    """Log user in"""
-    # Forget any user_id
-    session.pop("user_id", None)
-    
-    # User reached route via POST (as by submitting a form via POST)
+@app.route("/auth", methods=["GET", "POST"])
+def auth():
     if request.method == "POST":
+        form_type = request.form.get("form_type")
+        print(form_type)
+
+        # CSRF check
         token = request.form.get("csrf_token")
         if not token or token != session.get("csrf_token"):
             abort(403)
+
+        # Register
+        if form_type == "register":
+            print("Register")
+            username = request.form.get("username")
+            email = request.form.get("email")
+            password = request.form.get("password")
+            confirmation = request.form.get("confirmation")
+
+            if not username or not password or not confirmation or not email:
+                return apology("You must fill all fields correctly!")
+
+            if not verify_email(email):
+                return apology("Invalid email address!")
+
+            if password != confirmation:
+                return apology("Passwords do not match!")
+
+            if db.execute("SELECT * FROM users WHERE username = ?", username):
+                return apology("Username is already taken!")
+
+            hash_pw = generate_password_hash(password)
+            result = db.execute(
+                "INSERT INTO users(username, email, hash) VALUES (?, ?, ?)",
+                username,
+                email,
+                hash_pw,
+            )
+
+            # auto login after register
+            user_id = db.execute("SELECT id FROM users WHERE username = ?", username)[0]["id"]
+            session["user_id"] = user_id
+            return redirect("/")
+
+        # Login 
+        elif form_type == "login":
+            session.pop("user_id", None)
+
+            email = request.form.get("email")
+            password = request.form.get("password")
+            if not email:
+                return apology("Must provide email")
+            if not password:
+                return apology("Must provide password")
+
+            rows = db.execute("SELECT * FROM users WHERE email = ?", email)
+            if len(rows) != 1 or not check_password_hash(rows[0]["hash"], password):
+                return apology("invalid username and/or password", 403)
             
-        email = request.form.get("email")
-        password = request.form.get("password")
-        
-        # Ensure email was submitted
-        if not email:
-            return apology("must provide username", 403)
+            session["user_id"] = rows[0]["id"]
+            return redirect("/")
 
-        # Ensure password was submitted
-        elif not password:
-            return apology("must provide password", 403)
-
-        # Query database for username
-        rows = db.execute(
-            "SELECT * FROM users WHERE email = ?", email
-        )
-
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(
-            rows[0]["hash"], password
-        ):
-            return apology("invalid username and/or password", 403)
-
-        # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
-
-        # Redirect user to home page
-        return redirect("/")
-
-    # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template("login.html")
-
+    # GET request -> show auth page
+    return render_template("auth.html")
+    
 @app.route('/login/google')
 def google_login():
     ''' Google Oauth Config '''
@@ -279,31 +302,6 @@ def stocks():
     
     symbol = request.args.get("symbol", default="") # already being checked in get_symbol
     return render_template("stocks.html", symbol=symbol) # if request is post and input is correct
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    """Register user"""
-    if request.method == "POST":
-        token = request.form.get("csrf_token")
-        if not token or token != session.get("csrf_token"):
-            abort(403)
-        username, email, password, confirmation = request.form.get("username"), request.form.get("email"), request.form.get("password"), request.form.get("confirmation")
-        if not username or not password or not confirmation or not email: # if any field is blank
-            return apology("You must fill all fields correctly!")
-        
-        if not verify_email(email):
-            return abort(403)
-        
-        if password != confirmation:
-            return apology("Passwords does not match")
-        if db.execute("SELECT * FROM users WHERE username = ?", username):  # username already taken
-            return apology("Username is already taken!")
-
-        hash = generate_password_hash(password)
-        db.execute("INSERT INTO users(username, email, hash) VALUES (?, ?, ?)", username, email, hash) # put into database
-
-        return redirect("/login")
-    return render_template("register.html") # get request
 
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
