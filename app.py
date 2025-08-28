@@ -163,6 +163,10 @@ def history():
     context = db.execute("SELECT * FROM history WHERE user_id = ?", session["user_id"])
     return render_template("history.html", context=context)
 
+@app.route("/login_register", methods=["GET", "POST"])
+def loginRegister():
+    return render_template("login_register.html")
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
