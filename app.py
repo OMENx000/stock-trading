@@ -286,10 +286,7 @@ def register():
         username, email, password, confirmation = request.form.get("username"), request.form.get("email"), request.form.get("password"), request.form.get("confirmation")
         if not username or not password or not confirmation or not email: # if any field is blank
             return apology("You must fill all fields correctly!")
-        
-        if not verify_email(email):
-            return abort(403)
-        
+
         if password != confirmation:
             return apology("Passwords does not match")
         if db.execute("SELECT * FROM users WHERE username = ?", username):  # username already taken
