@@ -179,7 +179,7 @@ nav a {
   border-radius: 5px;
 }
 
-#search-form-overlay {
+#form-overlay {
   position: fixed;
   top: 0;
   left: 0;

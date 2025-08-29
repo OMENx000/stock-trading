@@ -71,9 +71,9 @@ function updatePrices(priceCellPrefix, lookupUrl) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('show-search-form').addEventListener('click', function() {
-        document.getElementById('search-form-overlay').style.display = 'flex';
-        document.getElementById('company-name-input').focus();
+    document.getElementById('show').addEventListener('click', function() {
+        document.getElementById('form-overlay').style.display = 'flex';
+        document.getElementById('hidden-input').focus();
     });
 
     document.getElementById('search-form-overlay').addEventListener('click', function(e) {

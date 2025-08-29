@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import secure_form %}
 
 {% block title %}
     {{ info.name if info else "Stock" }}
@@ -14,6 +15,23 @@
             <!-- Placeholder for graph -->
             <div id="stock-graph">
                 <p class="text-muted">[Graph will appear here]</p>
+            </div>
+        </div>
+        <div id="buy_container">
+            <button class="btn btn-primary ms-1" id="show" type="button">BUY</button>
+        </div>
+
+
+        <!-- Hidden  form -->
+        <div id="form-overlay" style="display: none;">
+            <div id="form-modal" class="modal-container">
+                {% call secure_form("/buy") %}
+                    <div class="input-group gap-3">
+                        <input type="hidden" name="symbol" value="{{ info.symbol }}">
+                        <input class="form-control mx-auto w-auto" id="hidden-input" name="quantity" placeholder="Quantity" type="number" min="1">
+                        <button class="btn btn-primary" id="company_name_button" type="submit">BUY</button>
+                    </div>
+                {% endcall %}
             </div>
         </div>
     {% else %}

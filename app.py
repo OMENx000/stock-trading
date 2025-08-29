@@ -106,8 +106,7 @@ def buy():
             return apology("Enter Valid quantity")
         if not symbol:
             return apology("Enter Valid Symbol")
-        
-        '''
+
         info = lookup(symbol)
         if not symbol or not info: # if symbol is wrong
             return apology("Enter Valid Symbol")
@@ -137,7 +136,6 @@ def buy():
                    user_info["id"], info["name"], symbol, "P", quantity, info["price"], dt)
 
         return redirect("/")
-        '''
     
     user_company_symbol = request.args.get("symbol", default="")
     return render_template("purchase.html", balance=balance, user_symbol=user_company_symbol)
