@@ -1,0 +1,106 @@
+{% extends "layout.html" %} {% from "macros.html" import secure_form %} {% block
+title %} Log In {% endblock %} {% block main %}
+<div class="container" id="container">
+  {% call secure_form("/register") %}
+  <div class="form-container sign-up">
+  
+      <h1>Create Account</h1>
+      <input
+        autocomplete="off"
+        autofocus
+        name="username"
+        placeholder="Username"
+        type="text"
+      />
+      <input
+        autocomplete="off"
+        autofocus
+        name="email"
+        placeholder="Email"
+        type="email"
+      />
+      <input name="password" placeholder="Password" type="password" />
+      <input
+        name="confirmation"
+        placeholder="Confirm Password"
+        type="password"
+      />
+      <button type="submit" class="form-container-btn">Sign Up</button>
+      <div class="divider">
+        <span>OR</span>
+      </div>
+      <div class="social-icons">
+        <a href="/login/google">
+          <img
+            class="google_login_icon"
+            src="../static/images/google.svg"
+            alt=""
+          />
+          Login with Google
+        </a>
+      </div>
+   
+  </div>
+  {% endcall %} 
+  {% call secure_form("/login") %}
+  <div class="form-container sign-in">
+    
+      <h1>Sign In</h1>
+      <input
+        autocomplete="off"
+        autofocus
+        name="email"
+        placeholder="Email"
+        type="email"
+      />
+      <input name="password" placeholder="Password" type="password" />
+      <button type="submit" class="form-container-btn">Sign In</button>
+      <a href="#">Forget Your Password?</a>
+      <div class="divider">
+        <span>OR</span>
+      </div>
+      <div class="social-icons">
+        <a href="{{ url_for('google_login') }}">
+          <img
+            class="google_login_icon"
+            src="../static/images/google.svg"
+            alt=""
+          />
+          Login with Google
+        </a>
+      </div>
+    
+  </div>
+  {% endcall %}
+  <div class="toggle-container">
+    <div class="toggle">
+      <!-- LEFT: Sign up welcome -->
+      <div class="toggle-panel toggle-left">
+        <h1>Welcome aboard! 🚀</h1>
+        <p>
+          Start your trading journey with<br />virtual funds. No Risk, Only
+          Learning.
+        </p>
+        <div style="display: flex; align-items: center; flex-wrap: wrap">
+          <small>Already have an account?</small>
+          <button class="hidden" id="login">
+            <span>Sign In</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Sign in welcome -->
+      <div class="toggle-panel toggle-right">
+        <h1>Good to see you again!</h1>
+        <p>Jump back into the markets.<br />Safely & Virtually.</p>
+        <div style="display: flex; align-items: center; flex-wrap: wrap">
+          <small>First time here?</small>
+          <button class="hidden" id="register">
+            <span>Sign Up</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
