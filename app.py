@@ -66,11 +66,11 @@ def index():
         sum = 0
     context["cash"] = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])[0]["cash"]
     context["total"] = context["cash"] + sum
-    
+        
     # check if market is open or close (currently only for us market)
     # Get NYSE calendar
     nyse = mcal.get_calendar('NYSE')
-  
+    
     # Current datetime in Eastern Time
     et = pytz.timezone('US/Eastern')
     now = datetime.now(et)
@@ -107,7 +107,7 @@ def buy():
         if not symbol:
             return apology("Enter Valid Symbol")
         
-        '''
+
         info = lookup(symbol)
         if not symbol or not info: # if symbol is wrong
             return apology("Enter Valid Symbol")
@@ -137,7 +137,6 @@ def buy():
                    user_info["id"], info["name"], symbol, "P", quantity, info["price"], dt)
 
         return redirect("/")
-        '''
     
     user_company_symbol = request.args.get("symbol", default="")
     return render_template("purchase.html", balance=balance, user_symbol=user_company_symbol)
@@ -205,7 +204,35 @@ def login():
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return render_template("login.html")
+        return render_template("auth.html")
+    
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Register user"""
+    if request.method == "POST":
+        token = request.form.get("csrf_token")
+        if not token or token != session.get("csrf_token"):
+            abort(403)
+        username, email, password, confirmation = request.form.get("username"), request.form.get("email"), request.form.get("password"), request.form.get("confirmation")
+        if not username or not password or not confirmation or not email: # if any field is blank
+            return apology("You must fill all fields correctly!")
+
+        if password != confirmation:
+            return apology("Passwords does not match")
+        if db.execute("SELECT * FROM users WHERE email = ?", email):  # username already taken
+            return apology("User exists with same email")
+
+        hash = generate_password_hash(password)
+        db.execute("INSERT INTO users(username, email, hash) VALUES (?, ?, ?)", username, email, hash) # put into database
+
+        rows = db.execute(
+            "SELECT * FROM users WHERE email = ?", email
+        )
+        
+        # Remember which user has logged in
+        session["user_id"] = rows[0]["id"]
+        return redirect("/")
+    return render_template("auth.html") # get request
 
 @app.route('/login/google')
 def google_login():
@@ -275,28 +302,6 @@ def stocks():
     
     symbol = request.args.get("symbol", default="") # already being checked in get_symbol
     return render_template("stocks.html", symbol=symbol) # if request is post and input is correct
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    """Register user"""
-    if request.method == "POST":
-        token = request.form.get("csrf_token")
-        if not token or token != session.get("csrf_token"):
-            abort(403)
-        username, email, password, confirmation = request.form.get("username"), request.form.get("email"), request.form.get("password"), request.form.get("confirmation")
-        if not username or not password or not confirmation or not email: # if any field is blank
-            return apology("You must fill all fields correctly!")
-
-        if password != confirmation:
-            return apology("Passwords does not match")
-        if db.execute("SELECT * FROM users WHERE username = ?", username):  # username already taken
-            return apology("Username is already taken!")
-
-        hash = generate_password_hash(password)
-        db.execute("INSERT INTO users(username, email, hash) VALUES (?, ?, ?)", username, email, hash) # put into database
-
-        return redirect("/login")
-    return render_template("register.html") # get request
 
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
