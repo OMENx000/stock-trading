@@ -1,11 +1,10 @@
 {% extends "layout.html" %} {% from "macros.html" import secure_form %} {% block
 title %} Log In {% endblock %} {% block main %}
 <div class="container" id="container">
-  {% call secure_form("/auth") %}
+  {% call secure_form("/register") %}
   <div class="form-container sign-up">
   
       <h1>Create Account</h1>
-      <input type="hidden" name="form_type" value="register">
       <input
         autocomplete="off"
         autofocus
@@ -31,7 +30,7 @@ title %} Log In {% endblock %} {% block main %}
         <span>OR</span>
       </div>
       <div class="social-icons">
-        <a href="{{ url_for('google_login') }}">
+        <a href="/login/google">
           <img
             class="google_login_icon"
             src="../static/images/google.svg"
@@ -43,11 +42,10 @@ title %} Log In {% endblock %} {% block main %}
    
   </div>
   {% endcall %} 
-  {% call secure_form("/auth") %}
+  {% call secure_form("/login") %}
   <div class="form-container sign-in">
     
       <h1>Sign In</h1>
-      <input type="hidden" name="form_type" value="login">
       <input
         autocomplete="off"
         autofocus
