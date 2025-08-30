@@ -5,6 +5,7 @@ from datetime import datetime
 from os import getenv
 from dotenv import load_dotenv
 from requests import get
+import pylcs # longest common subsequence implementation in c++
 
 def apology(message, code=400):
     """Render message as an apology to user."""
@@ -46,7 +47,6 @@ def login_required(f):
 
     return decorated_function
 
-
 def lookup(symbol):
     """Look up quote for symbol using Yahoo Finance"""
     if not symbol: return None
@@ -65,6 +65,32 @@ def lookup(symbol):
         }
     except Exception:
         return None
+
+def search_suggestions(sequence, top_n=10):
+    ''' Fetch function for ajax search '''
+    matches = []
+
+    with open("D:\\code\\finance\\all_stock.txt", "r", encoding="utf-8") as file:
+        sequence = sequence.upper()
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue  # skip empty lines
+
+            parts = line.split("|")
+            if len(parts) < 2:
+                continue  # skip malformed lines
+
+            symbol, company = parts[0].strip(), parts[1].strip()
+            lcs_len = pylcs.lcs_string_length(sequence, company.upper())  # calculate longest common substring for matches
+
+            matches.append({"symbol": symbol, "company": company, "score": lcs_len})
+
+    # Sort by LCS score descending
+    matches.sort(key=lambda x: x["score"], reverse=True)
+
+    # Return top N matches, omit score in output
+    return [{"symbol": m["symbol"], "company": m["company"]} for m in matches[:top_n]]
 
 
 def usd(value):
