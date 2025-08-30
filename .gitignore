@@ -15,6 +15,8 @@ data.txt
 # Flask session and runtime files
 flask_session/
 instance/
+checker/
+lcsubstring.egg-info/ 
 
 # Environment / secrets
 .env
