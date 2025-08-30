@@ -10,10 +10,9 @@ from dotenv import load_dotenv
 from flask import (Flask, abort, jsonify, redirect, render_template, request,
                    session, url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from flask_session import Session
 from helpers import (apology, check_quantity, convert_dt, login_required,
-                     lookup, symbol_api, usd, verify_email)
+                     lookup, symbol_api, usd, verify_email, search_suggestions)
 
 
 # Loading environment variables
@@ -303,6 +302,13 @@ def stocks():
     symbol = request.args.get("symbol", default="") # already being checked in get_symbol
     return render_template("stocks.html", symbol=symbol) # if request is post and input is correct
 
+@app.route("/search", methods=["GET", "POST"])
+@login_required
+def search():
+    ''' Url for ajax searching '''
+    sequence = request.args.get("q")
+    return search_suggestions(sequence)
+    
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
 def sell():

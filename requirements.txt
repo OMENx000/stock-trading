@@ -6,3 +6,4 @@ requests
 google-generativeai
 yfinance
 pandas-market-calendars
+pylcs

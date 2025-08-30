@@ -1,7 +1,0 @@
-README.md
-checker.cpp
-setup.py
-lcsubstring.egg-info/PKG-INFO
-lcsubstring.egg-info/SOURCES.txt
-lcsubstring.egg-info/dependency_links.txt
-lcsubstring.egg-info/top_level.txt
