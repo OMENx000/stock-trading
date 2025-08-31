@@ -73,7 +73,10 @@
             </g>
           </g>
         </svg>
-        <input type="search" id="search-input" />
+        <div class="search-container">
+            <input type="search" id="search-input" placeholder="Search..."/>
+            <div id="result-box"></div>
+        </div>
       </div>
       <div class="sidebar">
         <svg
@@ -183,7 +186,7 @@
     <main class="main-container py-2 text-center">
       {% block main %}{% endblock %}
     </main>
-    <script src="static/js/index.js"></script>
-    <script src="/static/script.js"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>
