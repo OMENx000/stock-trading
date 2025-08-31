@@ -69,8 +69,9 @@ def lookup(symbol):
 def search_suggestions(sequence, top_n=10):
     ''' Fetch function for ajax search '''
     matches = []
+    FILEPATH = "D:\\code\\finance\\all_stock.txt"
 
-    with open("D:\\code\\finance\\all_stock.txt", "r", encoding="utf-8") as file:
+    with open(FILEPATH, "r", encoding="utf-8") as file:
         sequence = sequence.upper()
         for line in file:
             line = line.strip()

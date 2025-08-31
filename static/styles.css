@@ -70,6 +70,7 @@ nav a {
   box-sizing: content-box;
   padding-top: 10px;
 }
+
 #search-input {
   border: 1px solid #ffffff20;
   border-radius: 40px;
@@ -78,11 +79,35 @@ nav a {
   padding: 5px 10px;
   color: var(--primary-color);
   outline: none;
+  width: 300px;
 }
-#search-input:focus ~ .search-icon,
-.search-bar:focus-within #Icon-Set {
-  fill: var(--hover-color);
+
+#result-box {
+  display: none;
+  position: absolute;
+  background: var(--bg);       /* use your gradient */
+  color: var(--primary-color); /* default text color */
+  width: 300px;
+  border-radius: 10px;
+  margin-top: 30px;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 1000;
 }
+
+.result-item {
+  display: block;
+  padding: 8px 12px;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.result-item:hover {
+  background-color: var(--hover-color);
+  color: #000;                       
+}
+
 /* Sidebar */
 .sidebar {
   position: relative;

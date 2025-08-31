@@ -144,7 +144,7 @@ def buy():
 @login_required
 def company_stock():
     """Renders main page for any particular stock"""
-    symbol = request.form.get("symbol")
+    symbol = request.args.get("symbol")
     if not symbol:
         return apology("No symbol provided")
 
@@ -286,7 +286,7 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
-
+'''
 @app.route("/stocks", methods=["GET", "POST"])
 @login_required
 def stocks():
@@ -301,6 +301,7 @@ def stocks():
     
     symbol = request.args.get("symbol", default="") # already being checked in get_symbol
     return render_template("stocks.html", symbol=symbol) # if request is post and input is correct
+'''
 
 @app.route("/search", methods=["GET", "POST"])
 @login_required
