@@ -20,9 +20,10 @@
 
     <!-- https://favicon.io/emoji-favicons/money-bag/ -->
     <link href="/static/favicon.ico" rel="icon" />
-
     <link href="/static/styles.css" rel="stylesheet" />
 
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
     
     <title>Omen Trades: {% block title %}{% endblock %}</title>
   </head>
@@ -37,7 +38,6 @@
       <div class="nav-links">
         <a class="nav-link" href="/">Home</a>
         <a class="nav-link">Portfolio</a>
-        <a class="nav-link" href="/stocks">Stocks</a>
       </div>
       <div class="search-bar">
         <svg
@@ -186,7 +186,5 @@
     <main class="main-container py-2 text-center">
       {% block main %}{% endblock %}
     </main>
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>
