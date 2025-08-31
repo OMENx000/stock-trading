@@ -183,7 +183,7 @@
     </header>
     {% endif %}
 
-    <main class="main-container py-2 text-center">
+    <main id="{% block main_id %}main-container{% endblock %}" class="main-container py-2 text-center">
       {% block main %}{% endblock %}
     </main>
   </body>
