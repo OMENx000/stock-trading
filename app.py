@@ -144,7 +144,7 @@ def buy():
 @login_required
 def company_stock():
     """Renders main page for any particular stock"""
-    symbol = request.form.get("symbol")
+    symbol = request.args.get("symbol")
     if not symbol:
         return apology("No symbol provided")
 

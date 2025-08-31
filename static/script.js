@@ -121,8 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (query.length > 0) {
                     const xhr = new XMLHttpRequest();
-                    xhr.open('GET', '/static/js/dummy.json', true);
-                    // xhr.open('GET', `/lookup?symbol=${encodeURIComponent(query)}`, true);  enable it when u start real backend inplementation
+                    xhr.open('GET', `/search?q=${encodeURIComponent(query)}`, true);
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState === 4 && xhr.status === 200) {
                             const data = JSON.parse(xhr.responseText);
@@ -139,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             filtered.forEach(stock => {
                                 const link = document.createElement('a');
-                                link.href = `/company/stock/${stock.symbol}`;
+                                link.href = `/company/stock?symbol=${stock.symbol}`;
                                 link.textContent = `${stock.company} (${stock.symbol})`;
                                 link.className = 'result-item';
                                 console.log(link);
