@@ -22,7 +22,6 @@
     <link href="/static/favicon.ico" rel="icon" />
     <link href="/static/styles.css" rel="stylesheet" />
 
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     
     <title>Omen Trades: {% block title %}{% endblock %}</title>
@@ -183,8 +182,10 @@
     </header>
     {% endif %}
 
-    <main class="main-container py-2 text-center">
+    <main id="{% block main_id %}main-container{% endblock %}" class="main-container py-2 text-center">
       {% block main %}{% endblock %}
     </main>
+    
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
   </body>
 </html>

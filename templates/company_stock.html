@@ -5,6 +5,8 @@
     {{ info.name if info else "Stock" }}
 {% endblock %}
 
+{% block main_id %}company-stock-page{% endblock %}
+
 {% block main %}
     {% if info %}
         <div class="stock-info-box">
