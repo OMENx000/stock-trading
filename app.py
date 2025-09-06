@@ -415,7 +415,7 @@ def add_cash():
             return apology("Be in your limits")
 
         db.execute("UPDATE users SET cash=? WHERE id=?", cash + user_info[0]["cash"], user_info[0]["id"])
-        return redirect("/stocks")
+        return redirect("/")
     return render_template("add_cash.html", balance=user_info[0]["cash"])
 
 @app.route("/get_symbol", methods=["GET", "POST"])
