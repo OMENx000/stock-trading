@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<h2>PORTFOLIO</h2>
+
+<div class="grid">
+  {% for h in holdings %}
+  <div class="card">
+    <h3>{{ h.symbol }}</h3>
+    <table class="table">
+      <tr>
+        <th>Shares</th>
+        <td>{{ h.shares }}</td>
+      </tr>
+      <tr>
+        <th>Bought Price</th>
+        <td>${{ "%.2f"|format(h.avg_price) }}</td>
+      </tr>
+      <tr>
+        <th>Current Price</th>
+        <td>${{ "%.2f"|format(h.current_price) }}</td>
+      </tr>
+      <tr>
+        <th>Total Value</th>
+        <td>${{ "%.2f"|format(h.value) }}</td>
+      </tr>
+    </table>
+    <form action="/sell" method="get">
+      <input type="hidden" name="symbol" value="{{ h.symbol }}">
+      <button type="submit" class="sell-btn">Sell</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+
+<p><strong>Grand Total:</strong> ${{ "%.2f"|format(total) }}</p>
+
+{% endblock %}
