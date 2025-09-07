@@ -55,6 +55,7 @@ This was developed as a learning project to explore web development, databases, 
     - Install sqlite (if on windows) (https://www.sqlite.org/download.html)
     - Check after installation (sqlite3 --version)
     - Run - **sqlite3 finance.db < schema.sql**
+    - Run - python make_table.py
 
 5. Run - flask run
 

@@ -12,7 +12,7 @@ from flask import (Flask, abort, jsonify, redirect, render_template, request,
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_session import Session
 from helpers import (apology, check_quantity, convert_dt, login_required,
-                     lookup, symbol_api, usd, verify_email, search_suggestions)
+                     lookup, symbol_api, usd, verify_email)
 
 
 # Loading environment variables
@@ -308,7 +308,26 @@ def stocks():
 def search():
     ''' Url for ajax searching '''
     sequence = request.args.get("q")
-    return search_suggestions(sequence)
+    LIMIT = 10
+    pattern = f"%{sequence}%"
+    prefix  = f"{sequence}%"
+
+    # query to get stocks
+    matches = db.execute("""
+        SELECT *
+        FROM stocks
+        WHERE company LIKE ? OR symbol LIKE ?
+        ORDER BY
+            CASE 
+                WHEN symbol LIKE ? THEN 1
+                WHEN company LIKE ?   THEN 2
+                ELSE 3
+            END,
+            company
+        LIMIT ?;
+    """, pattern, pattern, prefix, prefix, LIMIT)
+
+    return matches
     
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
